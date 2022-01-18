@@ -4,55 +4,16 @@ import { ContainerId, ItemStack } from "bdsx/bds/inventory";
 import { serverInstance } from "bdsx/bds/server";
 import { system } from "../example_and_test/bedrockapi-system";
 import { command } from "bdsx/command";
-import { BlockPos, RelativeFloat } from "bdsx/bds/blockpos";
+import { BlockPos } from "bdsx/bds/blockpos";
 import { CommandPermissionLevel, ActorWildcardCommandSelector, CommandRawText, CommandOutputParameter, CommandOutputType, CommandVisibilityFlag } from "bdsx/bds/command";
-import { int32_t, float32_t, bool_t, CxxString, void_t, NativeType } from "bdsx/nativetype";
-import { ByteTag, CompoundTag, EndTag, Int64Tag, IntTag, ListTag, ShortTag, StringTag, Tag } from "bdsx/bds/nbt";
+import { int32_t, bool_t } from "bdsx/nativetype";
+import { ByteTag, CompoundTag, IntTag, ListTag, ShortTag, StringTag, Tag } from "bdsx/bds/nbt";
 import { CANCEL } from "bdsx/common";
-import { CustomForm, Form, FormDataCustom, FormDropdown, FormInput, FormSlider } from "bdsx/bds/form";
+import { CustomForm, FormDropdown, FormInput, FormSlider } from "bdsx/bds/form";
 import { onUseItem } from "./onUse";
-import { Block, BlockActor, BlockSource } from "bdsx/bds/block";
-import { Dimension } from "bdsx/bds/dimension";
+import { Block, BlockSource } from "bdsx/bds/block";
 import { DimensionId } from "bdsx/bds/actor";
-import { Packet } from "bdsx/bds/packet";
 import { PlaySoundPacket } from "bdsx/bds/packets";
-import { ServerPlayer } from "bdsx/bds/player";
-import { makefunc } from "bdsx/makefunc";
-import { Level } from "bdsx/bds/level";
-import { NativeClass, nativeClass, nativeField } from "bdsx/nativeclass";
-import { pdb, VoidPointer } from "bdsx/core";
-import { UNDNAME_NAME_ONLY } from "bdsx/dbghelp";
-import { capi } from "bdsx/capi";
-
-const pitches: pitch[] = [];
-type pitch = {
-    "n": number[],
-    "s": number[]
-}
-function getpitch(i: number): number {
-    return Math.pow(2.0, (i - 12) / 12);
-}
-for (let i = 0; i < 9; i++) {
-    pitches.push({"n":[], "s": []})
-    pitches[i]["n"].push(getpitch(i*12+1))
-    pitches[i]["s"].push(getpitch(i*12+2))
-
-    pitches[i]["n"].push(getpitch(i*12+3))
-    pitches[i]["s"].push(getpitch(i*12+4))
-
-    pitches[i]["n"].push(getpitch(i*12+5))
-
-    pitches[i]["n"].push(getpitch(i*12+6))
-    pitches[i]["s"].push(getpitch(i*12+7))
-
-    pitches[i]["n"].push(getpitch(i*12+8))
-    pitches[i]["s"].push(getpitch(i*12+9))
-
-    pitches[i]["n"].push(getpitch(i*12+10))
-    pitches[i]["s"].push(getpitch(i*12+11))
-
-    pitches[i]["n"].push(getpitch(i*12+12))
-}
 
 function sleep(ms: number): Promise<NodeJS.Timeout> {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -96,36 +57,37 @@ function executeCommandAsync(command: string): Promise<IExecuteCommandCallback> 
 function createcb(pitch: number | string, sound: string = "note.harp", octave: number | string = 5): ItemStack {
     const desc = `${sound};${octave};`;
     const is = ItemStack.allocate();
-    const comtag = CompoundTag.constructWith({
-        "Count": ByteTag.constructWith(1),
-        "Damage": ShortTag.constructWith(0),
-        "Name": StringTag.constructWith("minecraft:command_block"),
-        "WasPickedUp": ByteTag.constructWith(0),
-        "tag": CompoundTag.constructWith({
-            "display": CompoundTag.constructWith({
-                "Lore": ListTag.constructWith<StringTag>([
-                    StringTag.constructWith(desc)
+    const comtag = CompoundTag.allocateWith({
+        "Count": ByteTag.allocateWith(1),
+        "Damage": ShortTag.allocateWith(0),
+        "Name": StringTag.allocateWith("minecraft:command_block"),
+        "WasPickedUp": ByteTag.allocateWith(0),
+        "tag": CompoundTag.allocateWith({
+            "display": CompoundTag.allocateWith({
+                "Lore": ListTag.allocateWith<StringTag>([
+                    StringTag.allocateWith(desc)
                 ])
             }),
-            "auto": ByteTag.constructWith(0),
-            "conditionalMode": ByteTag.constructWith(0),
-            "conditionMet": ByteTag.constructWith(0),
-            "ExecuteOnFirstTick": ByteTag.constructWith(0),
-            "LPCondionalMode": ByteTag.constructWith(0),
-            "LPRedstoneMode": ByteTag.constructWith(0),
-            "powerd": ByteTag.constructWith(0),
-            "TrackOutput": ByteTag.constructWith(0),
-            "LPCommandMode": IntTag.constructWith(0),
-            "SuccessCount": IntTag.constructWith(0),
-            "TickDelay": IntTag.constructWith(0),
-            "Version": IntTag.constructWith(17),
-            "LastExecution": IntTag.constructWith(0),
-            "Command": StringTag.constructWith(`playsound ${sound} @a ~~~ 10000.0 ${pitch} 0.0`), // is volume range?
-            "CustomName": StringTag.constructWith(desc),
-            "LastOutput": StringTag.constructWith("from NoteBlockUtil")
+            "auto": ByteTag.allocateWith(0),
+            "conditionalMode": ByteTag.allocateWith(0),
+            "conditionMet": ByteTag.allocateWith(0),
+            "ExecuteOnFirstTick": ByteTag.allocateWith(0),
+            "LPCondionalMode": ByteTag.allocateWith(0),
+            "LPRedstoneMode": ByteTag.allocateWith(0),
+            "powerd": ByteTag.allocateWith(0),
+            "TrackOutput": ByteTag.allocateWith(0),
+            "LPCommandMode": IntTag.allocateWith(0),
+            "SuccessCount": IntTag.allocateWith(0),
+            "TickDelay": IntTag.allocateWith(0),
+            "Version": IntTag.allocateWith(17),
+            "LastExecution": IntTag.allocateWith(0),
+            "Command": StringTag.allocateWith(`playsound ${sound} @a ~~~ 10000.0 ${pitch} 0.0`), // is volume range?
+            "CustomName": StringTag.allocateWith(desc),
+            "LastOutput": StringTag.allocateWith("from NoteBlockUtil")
         })
     });
     is.load(comtag);
+    comtag.dispose();
     return is;
 }
 
@@ -158,18 +120,19 @@ command.register("nbu", "NoteBlockUtil", CommandPermissionLevel.Normal, 0, 0).ov
         const player = actor.getNetworkIdentifier().getActor();
         const inventory = player?.getInventory();
         const is = ItemStack.allocate();
-        const comtag = CompoundTag.constructWith({
-            "Count": ByteTag.constructWith(1),
-            "Damage": ShortTag.constructWith(0),
-            "Name": StringTag.constructWith("minecraft:compass"),
-            "WasPickedUp": ByteTag.constructWith(0),
-            "tag": CompoundTag.constructWith({
-                "display": CompoundTag.constructWith({
-                    "Name": StringTag.constructWith("Open NBU Menu")
+        const comtag = CompoundTag.allocateWith({
+            "Count": ByteTag.allocateWith(1),
+            "Damage": ShortTag.allocateWith(0),
+            "Name": StringTag.allocateWith("minecraft:compass"),
+            "WasPickedUp": ByteTag.allocateWith(0),
+            "tag": CompoundTag.allocateWith({
+                "display": CompoundTag.allocateWith({
+                    "Name": StringTag.allocateWith("Open NBU Menu")
                 })
             })
         });
         is.load(comtag);
+        comtag.dispose();
         inventory?.setItem(0, is, ContainerId.Inventory, true);
         inventory?.setItem(1, createcb(Math.pow(2.0, ((octave-5)*12+1-12.0)/12.0).toString().slice(0, 5), sound, octave), ContainerId.Inventory, true);
         inventory?.setItem(2, createcb(Math.pow(2.0, ((octave-5)*12+3-12.0)/12.0).toString().slice(0, 5), sound, octave), ContainerId.Inventory, true);
@@ -287,18 +250,19 @@ onUseItem.on((ni, itemName, is) => {
                     actor?.addTag(`nbu;${sound};${octave};`);
                     const inventory = actor?.getInventory();
                     const is = ItemStack.allocate();
-                    const comtag = CompoundTag.constructWith({
-                        "Count": ByteTag.constructWith(1),
-                        "Damage": ShortTag.constructWith(0),
-                        "Name": StringTag.constructWith("minecraft:compass"),
-                        "WasPickedUp": ByteTag.constructWith(0),
-                        "tag": CompoundTag.constructWith({
-                            "display": CompoundTag.constructWith({
-                                "Name": StringTag.constructWith("Open NBU Menu")
+                    const comtag = CompoundTag.allocateWith({
+                        "Count": ByteTag.allocateWith(1),
+                        "Damage": ShortTag.allocateWith(0),
+                        "Name": StringTag.allocateWith("minecraft:compass"),
+                        "WasPickedUp": ByteTag.allocateWith(0),
+                        "tag": CompoundTag.allocateWith({
+                            "display": CompoundTag.allocateWith({
+                                "Name": StringTag.allocateWith("Open NBU Menu")
                             })
                         })
                     });
                     is.load(comtag);
+                    comtag.dispose();
                     inventory?.setItem(0, is, ContainerId.Inventory, true);
                     inventory?.setItem(1, createcb(Math.pow(2.0, ((octave-5)*12+1-12.0)/12.0).toString().slice(0, 5), sound, octave), ContainerId.Inventory, true);
                     inventory?.setItem(2, createcb(Math.pow(2.0, ((octave-5)*12+3-12.0)/12.0).toString().slice(0, 5), sound, octave), ContainerId.Inventory, true);
@@ -315,48 +279,8 @@ onUseItem.on((ni, itemName, is) => {
     }
 });
 
-const proc = pdb.getList(
-    pdb.coreCachePath,
-    {},
-    [
-        "DefaultDataLoadHelper::`vftable'"
-    ],
-    false,
-    UNDNAME_NAME_ONLY
-);
-
-@nativeClass()
-class DefaultDataLoaderHelper extends NativeClass {
-    static readonly vftable = proc["DefaultDataLoadHelper::`vftable'"];
-    @nativeField(VoidPointer)
-    vftable:VoidPointer;
-
-    [NativeType.ctor]():void {
-        this.vftable = DefaultDataLoaderHelper.vftable;
-    }
-
-    static create():DefaultDataLoaderHelper {
-        const v = new DefaultDataLoaderHelper(true);
-        v.vftable = DefaultDataLoaderHelper.vftable;
-        return v;
-    }
-}
-
-const BlockActor$load = makefunc.js([0x8], void_t, {this:BlockActor}, Level, CompoundTag, DefaultDataLoaderHelper);
-function baload(ba: BlockActor, tag: CompoundTag): void {
-    const level = serverInstance.minecraft.getLevel();
-    if (tag instanceof Tag) {
-        BlockActor$load.call(ba, level, tag, DefaultDataLoaderHelper.create());
-    } else {
-        throw Error("no");
-        //const allocated = NBT.allocate(tag);
-        //BlockActor$load.call(ba, level, allocated as CompoundTag, DefaultDataLoaderHelper.create());
-        //allocated.dispose();
-    }
-}
-
 events.blockPlace.on(eventData => {
-    const player = serverInstance.getPlayers().find(player => player.getName() == eventData.player.getName()) as ServerPlayer;
+    const player = eventData.player.getNetworkIdentifier().getActor()!;
     const pos = BlockPos.create(eventData.blockPos.x + 4, eventData.blockPos.y, eventData.blockPos.z);
     if (eventData.block.getName() == "minecraft:command_block") (async function() {
         const tagsresult = await (await executeCommandAsync(`tag ${player.getName()} list`)).data;
@@ -382,31 +306,14 @@ events.blockPlace.on(eventData => {
         const sn = gp(player.getInventory().getSelectedSlot(), player.isSneaking());
         console.log(sn);
         const bs = player.getRegion();
-        bs.setBlock(pos, Block.constructWith("minecraft:command_block", 1) as Block);
-        const comtag = CompoundTag.constructWith({
-            "Command": StringTag.constructWith(`playsound ${sound} @a ~~~ 10000.0 ${Math.pow(2.0, ((octave-5+1)*12+sn-12.0)/12.0).toString().slice(0, 5)} 0.0`),
-            "CustomName": StringTag.constructWith(`${sound};${octave+1};`),
-            "ExecuteOnFirstTick": ByteTag.constructWith(0),
-            "LPCommandMode": IntTag.constructWith(0),
-            "LPCondionalMode": ByteTag.constructWith(0),
-            "LPRedstoneMode": ByteTag.constructWith(0),
-            "LastExecution": Int64Tag.constructWith("\0"),
-            "LastOutput": StringTag.constructWith("from NoteBlockUtil"),
-            "LastOutputParams": ListTag.constructWith([]),
-            "SuccessCount": IntTag.constructWith(0),
-            "TickDelay": IntTag.constructWith(0),
-            "TrackOutput": ByteTag.constructWith(0),
-            "Version": IntTag.constructWith(17),
-            "auto": ByteTag.constructWith(0),
-            "conditionMet": ByteTag.constructWith(0),
-            "id": StringTag.constructWith("CommandBlock"),
-            "isMovable": ByteTag.constructWith(1),
-            "powered": ByteTag.constructWith(0),
-            "x": IntTag.constructWith(pos.x),
-            "y": IntTag.constructWith(pos.y),
-            "z": IntTag.constructWith(pos.z)
-        });
-        baload(bs.getBlockEntity(pos) as BlockActor, comtag);
+        bs.setBlock(pos, Block.constructWith("minecraft:command_block", 1)!);
+        const ba = bs.getBlockEntity(pos)!;
+        const comtag = CompoundTag.allocate();
+        ba.save(comtag);
+        comtag.set("Command", StringTag.allocateWith(`playsound ${sound} @a ~~~ 10000.0 ${Math.pow(2.0, ((octave-5+1)*12+sn-12.0)/12.0).toString().slice(0, 5)} 0.0`));
+        comtag.set("CustomName", StringTag.allocateWith(`${sound};${octave+1};`));
+        ba.load(comtag);
+        comtag.dispose();
     })();
 });
 
@@ -428,11 +335,11 @@ command.register("nbuplay", "NoteBlockUtil / Play", CommandPermissionLevel.Norma
         await sleep((60/param.bpm)*1000/8);
     }*/
     const dimension = serverInstance.minecraft.getLevel().getDimension(DimensionId.Overworld);
-    const redstone_lamp = Block.constructWith("minecraft:redstone_lamp") as Block;
-    const redstone_lit_lamp = Block.constructWith("minecraft:lit_redstone_lamp") as Block;
+    const redstone_lamp = Block.constructWith("minecraft:redstone_lamp")!;
+    const redstone_lit_lamp = Block.constructWith("minecraft:lit_redstone_lamp")!;
     let v = 0;
     for (let i = -1; i < param.xe - param.xs; i++) {
-        let bs: BlockSource = dimension?.getBlockSource() as BlockSource;
+        let bs: BlockSource = dimension!.getBlockSource();
         for (let j = 0; j < param.ze - param.zs + 1; j++) {
             let pos = BlockPos.create(param.xs + i, param.y, param.zs + j);
             let block = bs.getBlock(pos);
@@ -443,24 +350,27 @@ command.register("nbuplay", "NoteBlockUtil / Play", CommandPermissionLevel.Norma
                 //console.log((comtag.get("Command") as StringTag).data);
                 const command = (comtag.get("Command") as StringTag).data;
                 if (command.startsWith("playsound")) {
+                    const c = command.split(" ");
+                    const packet = PlaySoundPacket.create();
+                    packet.soundName = c[1];
+                    packet.volume = eval(c[4]);
+                    packet.pitch = eval(c[5]);
                     serverInstance.getPlayers().forEach(player => {
-                        const c = command.split(" ");
-                        const packet = PlaySoundPacket.create();
-                        packet.soundName = c[1];
-                        packet.volume = eval(c[4]);
-                        packet.pitch = eval(c[5]);
                         const pos = player.getPosition();
-                        //packet["pos"] = BlockPos.create(Math.round(pos.x), Math.round(pos.y), Math.round(pos.z));
+                        //console.log(`${player.getName()} ${JSON.stringify(pos.toJSON())}`);
+                        packet.pos.x = pos.x * 8;
+                        packet.pos.y = pos.y * 8;
+                        packet.pos.z = pos.z * 8;
                         player.sendPacket(packet);
                     });
                     //const cmd = "execute @a ~~~ " + command.replace("@a", "@s");
                     //executeCommandAsync(cmd);
                 } else executeCommandAsync(command);
-                //comtag.dispose();
-                comtag.destruct();
-                capi.free(comtag);
+                comtag.dispose();
+                //comtag.destruct();
+                //capi.free(comtag);
             }
-            //bs.setBlock(BlockPos.create(param.xs + i, param.y - 1, param.zs + j), Block.constructWith("minecraft:wool", v%param.division) as Block);
+            bs.setBlock(BlockPos.create(param.xs + i, param.y - 1, param.zs + j), Block.constructWith("minecraft:wool", v%param.division)!);
         }
         bs.setBlock(BlockPos.create(param.xs + i, param.y - 1, param.zs - 1), redstone_lamp);
         bs.setBlock(BlockPos.create(param.xs + i - 1, param.y - 1, param.zs - 1), redstone_lit_lamp);
